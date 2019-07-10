@@ -1,0 +1,7 @@
+const path = require('path')
+
+module.export = {
+  'config': path.join('server', 'db', 'config', 'config.json'),
+  'migrations-path': path.join('server', 'db', 'migrations'),
+  'seeders-path': path.join('server', 'db', 'seeders')
+}
