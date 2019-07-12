@@ -34,13 +34,15 @@ app
 
     server.get('*', (req, res) => {
       const parsedUrl = parse(req.url, true)
+      //console.log('parsedUrl ', parsedUrl)
       const { pathname, query = {} } = parsedUrl
+      //console.log('pathname ', pathname)
 
       /**
        * Pull in front end routes and check agins routes
        */
       const route = routes[pathname]
-      console.log('getRoutes:', getRoutes)
+      //console.log('route:', route)
       if (route) {
         return app.render(req, res, route.page, query)
       }

@@ -1,41 +1,43 @@
-const path = require("path");
-const glob = require("glob");
+const withLess = require('@zeit/next-less')
+const lessToJs = require('less-vars-to-js')
+const fs = require('fs')
+const path = require('path')
 
-module.exports = {
-  webpack: (config, { dev }) => {
-    config.module.rules.push(
-      {
-        test: /\.(css|scss)/,
-        loader: "emit-file-loader",
-        options: {
-          name: "dist/[path][name].[ext]"
-        }
-      },
-      {
-        test: /\.css$/,
-        use: ["babel-loader", "raw-loader", "postcss-loader"]
-      },
-      {
-        test: /\.s(a|c)ss$/,
-        use: [
-          "babel-loader",
-          "raw-loader",
-          "postcss-loader",
-          {
-            loader: "sass-loader",
-            options: {
-              includePaths: ["scss", "node_modules"]
-                .map(d => path.join(__dirname, d))
-                .map(g => glob.sync(g))
-                .reduce((a, c) => a.concat(c), [])
-            }
-          }
-        ]
-      }
-    );
-    return config;
+// antd custom variables
+// const paletteLess = fs.readFileSync(
+//   './app/assets/less/antd-custom.less',
+//   'utf8'
+// )
+
+const paletteLess = fs.readFileSync(
+  path.resolve(__dirname, './app/assets/less/antd-custom.less'),
+  'utf8'
+)
+console.log('paletteLess', paletteLess)
+
+const themeVariables = lessToJs(paletteLess, {
+  resolveVariables: true,
+  stripPrefix: true
+})
+
+/*
+themeVariables = lessToJs(
+  fs.readFileSync(
+    path.resolve(__dirname, './app/assets/less/antd-custom.less')
+  ),
+  'utf8'
+)
+*/
+
+// fix error when less files are required by node
+
+if (typeof require !== 'undefined') {
+  require.extensions['.less'] = file => {}
+}
+
+module.export = withLess({
+  lessLoaderOptions: {
+    javascriptEnabled: true,
+    modifyVars: themeVariables
   }
-};
-
-const withSass = require("@zeit/next-sass");
-module.exports = withSass();
+})
